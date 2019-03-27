@@ -1,0 +1,127 @@
+<beast version="2.0"
+       namespace="beast.core
+                 :beast.core.util
+                 :beast.core.parameter
+                 :beast.evolution.alignment
+                 :beast.evolution.likelihood
+                 :beast.evolution.tree
+                 :beast.evolution.tree.coalescent
+                 :beast.evolution.sitemodel
+                 :beast.evolution.substitutionmodel
+                 :beast.evolution.operators
+                 :beast.math.distributions
+                 :feast.simulation
+                 :coalre.network
+                 :coalre.statistics
+                 :coalre.simulator
+                 :coalre.distribution
+                 :coalre.operators">
+
+    <run spec="GPSimulator" nSims="1">
+        <simulationObject id="network_truth" spec="SimulatedCoalescentNetwork" fileName="$(filebase).trueNetwork.tree">
+            <populationModel spec="ConstantPopulation">
+                <popSize spec="RealParameter" value="insert_Ne"/>
+            </populationModel>
+
+            <reassortmentRate spec="RealParameter" value="insert_reassortment"/>
+
+            <taxonSet spec="TaxonSet" id="taxonSet">
+              insert_taxa
+            </taxonSet>
+
+            <traitSet spec="TraitSet" traitname="date-backward" id="traitSet">
+              insert_sampling_times
+              <taxa idref="taxonSet"/>
+            </traitSet>
+
+
+            <segmentTree id="seg1tree_truth" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="seg2tree_truth" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="seg3tree_truth" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="seg4tree_truth" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+        </simulationObject>
+
+        <simulationObject id="seg1align.high" spec="SimulatedAlignment" outputFileName="$(filebase).seg1.alignment.high.nexus"
+                   sequenceLength="1000" tree="@seg1tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+        <simulationObject id="seg2align.high" spec="SimulatedAlignment" outputFileName="$(filebase).seg2.alignment.high.nexus"
+                   sequenceLength="1000" tree="@seg2tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+        <simulationObject id="seg3align.high" spec="SimulatedAlignment" outputFileName="$(filebase).seg3.alignment.high.nexus"
+                   sequenceLength="1000" tree="@seg3tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+        <simulationObject id="seg4align.high" spec="SimulatedAlignment" outputFileName="$(filebase).seg4.alignment.high.nexus"
+                   sequenceLength="1000" tree="@seg4tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+
+        <simulationObject id="seg1align.low" spec="SimulatedAlignment" outputFileName="$(filebase).seg1.alignment.low.nexus"
+                   sequenceLength="1000" tree="@seg1tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.0005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+        <simulationObject id="seg2align.low" spec="SimulatedAlignment" outputFileName="$(filebase).seg2.alignment.low.nexus"
+                   sequenceLength="1000" tree="@seg2tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.0005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+        <simulationObject id="seg3align.low" spec="SimulatedAlignment" outputFileName="$(filebase).seg3.alignment.low.nexus"
+                   sequenceLength="1000" tree="@seg3tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.0005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+        <simulationObject id="seg4align.low" spec="SimulatedAlignment" outputFileName="$(filebase).seg4.alignment.low.nexus"
+                   sequenceLength="1000" tree="@seg4tree_truth">
+            <siteModel spec="SiteModel">
+                <mutationRate spec="RealParameter" value="0.0005"/>
+                <substModel spec="JukesCantor"/>
+            </siteModel>
+        </simulationObject>
+
+
+        <logger spec="Logger" fileName="$(filebase).trueSeg1.tree" logEvery="1">
+            <log idref="seg1tree_truth"/>
+        </logger>
+
+        <logger spec="Logger" fileName="$(filebase).trueSeg2.tree" logEvery="1">
+            <log idref="seg2tree_truth"/>
+        </logger>
+        <logger spec="Logger" fileName="$(filebase).trueSeg3.tree" logEvery="1">
+            <log idref="seg3tree_truth"/>
+        </logger>
+        <logger spec="Logger" fileName="$(filebase).trueSeg4.tree" logEvery="1">
+            <log idref="seg4tree_truth"/>
+        </logger>
+
+
+    </run>
+
+</beast>

@@ -1,0 +1,240 @@
+<beast version="2.0"
+       namespace="beast.core
+                 :beast.core.util
+                 :beast.core.parameter
+                 :beast.evolution.alignment
+                 :beast.evolution.likelihood
+                 :beast.evolution.tree
+                 :beast.evolution.tree.coalescent
+                 :beast.evolution.sitemodel
+                 :beast.evolution.substitutionmodel
+                 :beast.evolution.operators
+                 :beast.math.distributions
+                 :feast.simulation
+                 :feast.fileio
+                 :coalre.network
+                 :coalre.statistics
+                 :coalre.simulator
+                 :coalre.distribution
+                 :coalre.operators">
+
+    <alignment id="seg1align" spec="AlignmentFromNexus" fileName="insert_sim_file_name.seg1.alignment.inset_evol_rates.nexus"/>
+    <alignment id="seg2align" spec="AlignmentFromNexus" fileName="insert_sim_file_name.seg2.alignment.inset_evol_rates.nexus"/>
+    <alignment id="seg3align" spec="AlignmentFromNexus" fileName="insert_sim_file_name.seg3.alignment.inset_evol_rates.nexus"/>
+    <alignment id="seg4align" spec="AlignmentFromNexus" fileName="insert_sim_file_name.seg4.alignment.inset_evol_rates.nexus"/>
+
+    <taxonSet spec="TaxonSet" id="taxonSet">
+      insert_taxa
+    </taxonSet>
+
+    <traitSet spec="TraitSet" traitname="date-backward" id="traitSet">
+      insert_sampling_times
+      <taxa idref="taxonSet"/>
+    </traitSet>
+
+
+    <run spec="MCMC" chainLength="50000000">
+        <state>
+            <stateNode id="seg1tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <stateNode id="seg2tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <stateNode id="seg3tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <stateNode id="seg4tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <stateNode id="reassortmentRate" spec="RealParameter" value="initial_reassortment"/>
+            <stateNode id="clockRate.high" spec="RealParameter" value="0.005"/>
+            <stateNode id="clockRate.low" spec="RealParameter" value="0.0005"/>
+            <stateNode id="popSize" spec="RealParameter" value="initial_Ne"/>
+
+            <stateNode id="network" spec="SimulatedCoalescentNetwork"
+                       nSegments="4" enableSegmentTreeUpdate="false">
+
+                <traitSet idref="traitSet"/>
+
+                <populationModel spec="ConstantPopulation">
+                    <popSize spec="RealParameter" value="initial_Ne"/>
+                </populationModel>
+
+                <reassortmentRate spec="RealParameter" value="initial_reassortment"/>
+            </stateNode>
+        </state>
+
+        <init spec="SegmentTreeInitializer" network="@network">
+            <segmentTree idref="seg1tree"/>
+            <segmentTree idref="seg2tree"/>
+            <segmentTree idref="seg3tree"/>
+            <segmentTree idref="seg4tree"/>
+        </init>
+
+        <distribution id="posterior" spec="CompoundDistribution">
+
+            <distribution id="likelihood" spec="CompoundDistribution">
+                <distribution spec="TreeLikelihood">
+                    <data idref="seg1align"/>
+                    <tree idref="seg1tree"/>
+                    <siteModel spec="SiteModel" mutationRate="@clockRate.insert_clock_rate">
+                        <substModel spec="JukesCantor"/>
+                    </siteModel>
+                </distribution>
+
+                <distribution spec="TreeLikelihood">
+                    <data idref="seg2align"/>
+                    <tree idref="seg2tree"/>
+                    <siteModel spec="SiteModel" mutationRate="@clockRate.insert_clock_rate">
+                        <substModel spec="JukesCantor"/>
+                    </siteModel>
+                </distribution>
+
+                <distribution spec="TreeLikelihood">
+                    <data idref="seg3align"/>
+                    <tree idref="seg3tree"/>
+                    <siteModel spec="SiteModel" mutationRate="@clockRate.insert_clock_rate">
+                        <substModel spec="JukesCantor"/>
+                    </siteModel>
+                </distribution>
+
+                <distribution spec="TreeLikelihood">
+                    <data idref="seg4align"/>
+                    <tree idref="seg4tree"/>
+                    <siteModel spec="SiteModel" mutationRate="@clockRate.insert_clock_rate">
+                        <substModel spec="JukesCantor"/>
+                    </siteModel>
+                </distribution>
+
+
+            </distribution>
+
+            <distribution id="prior" spec="CompoundDistribution">
+                <distribution id="networkPrior" spec="CoalescentWithReassortment">
+                    <networkIntervals spec="NetworkIntervals" network="@network"/>
+
+                    <populationModel id="constantPopulation" spec="ConstantPopulation" popSize="@popSize"/>
+
+                    <reassortmentRate idref="reassortmentRate"/>
+                </distribution>
+
+                <distribution id="parametersPrior" spec="CompoundDistribution">
+                    <distribution spec="Prior" x="@reassortmentRate">
+                        <!--distr spec="beast.math.distributions.Uniform" lower="0.0" upper="10.0"/-->
+                        <distr spec="beast.math.distributions.LogNormalDistributionModel" M="-1.7344" S="0.5"/>
+                    </distribution>
+
+                    <distribution spec="Prior" x="@popSize">
+                        <!--distr spec="beast.math.distributions.Uniform" lower="0.0" upper="10.0"/-->
+                        <distr spec="beast.math.distributions.LogNormalDistributionModel" M="1.4844" S="0.5"/>
+                    </distribution>
+                </distribution>
+            </distribution>
+        </distribution>
+
+
+        <operator id="ReassortmentOperator" spec="ScaleOperator"
+                  weight="5.0" scaleFactor="0.8"  optimise="false"  parameter="@reassortmentRate">
+        </operator>
+
+        <operator id="PopSizeScaler" spec="ScaleOperator"
+                  weight="5.0"  scaleFactor="0.8" optimise="false" parameter="@popSize">
+        </operator>
+
+        <operator spec="AddRemoveReassortment" network="@network" alpha="1.0" weight="10.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator spec="DivertSegmentOperator" network="@network" weight="5.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator spec="UniformNetworkNodeHeightOperator" network="@network" weight="5.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator id="NetworkScale" spec="NetworkScaleOperator" network="@network" weight="3.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator id="NetworkScaleRootOnly" spec="NetworkScaleOperator" network="@network" scaleRootOnly="true" weight="3.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator spec="NetworkExchange" network="@network" isNarrow="false" weight="10.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator spec="NetworkExchange" network="@network" isNarrow="true" weight="10.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator spec="SubNetworkSlide" network="@network" weight="30.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+        </operator>
+
+        <operator id="GibbsOperatorAboveSegmentRoots" spec="GibbsOperatorAboveSegmentRoots" network="@network" weight="3.0">
+          <segmentTree idref="seg1tree"/>
+          <segmentTree idref="seg2tree"/>
+          <segmentTree idref="seg3tree"/>
+          <segmentTree idref="seg4tree"/>
+          <populationModel idref="constantPopulation"/>
+          <reassortmentRate idref="reassortmentRate"/>
+        </operator>
+
+
+        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).trees">
+            <log idref="network"/>
+        </logger>
+
+        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg1.trees">
+            <log idref="seg1tree"/>
+        </logger>
+
+        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg2.trees">
+            <log idref="seg2tree"/>
+        </logger>
+        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg3.trees">
+            <log idref="seg3tree"/>
+        </logger>
+        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg4.trees">
+            <log idref="seg4tree"/>
+        </logger>
+
+        <logger spec="Logger" logEvery="10000" fileName="$(filebase).log">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log spec="NetworkStatsLogger" network="@network"/>
+            <log spec="TreeStatLogger" tree="@seg1tree"/>
+            <log spec="TreeStatLogger" tree="@seg2tree"/>
+            <log spec="TreeStatLogger" tree="@seg3tree"/>
+            <log spec="TreeStatLogger" tree="@seg4tree"/>
+            <log idref="reassortmentRate"/>
+            <log idref="popSize"/>
+        </logger>
+
+        <logger spec="Logger" logEvery="10000">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log spec="ESS" arg="@posterior"/>
+        </logger>
+
+    </run>
+</beast>
