@@ -48,25 +48,13 @@
         <state>
           insert_seg_tree_state
 
-            <stateNode id="network" spec="SimulatedCoalescentNetwork"
-                       nSegments="insert_nr_segments" enableSegmentTreeUpdate="false">
-
-                <traitSet idref="traitSet"/>
-
-                <populationModel id="popModel" spec="ConstantPopulation">
-                  <parameter id="popSize.init" name="popSize">2</parameter>
-                </populationModel>
-                <parameter id="reassortmentRate.init" name="reassortmentRate">0.1</parameter>
-            </stateNode>
-            <parameter id="reassortmentRate" name="stateNode">0.1</parameter>
             <parameter id="clockRate.c" name="stateNode">0.0036</parameter>
             <parameter id="popSize.t" name="stateNode">2</parameter>
             insert_parameters
         </state>
 
-        <init spec="SegmentTreeInitializer" network="@network">
-          insert_seg_tree
-        </init>
+        seg_tree_init
+
 
         <distribution id="posterior" spec="CompoundDistribution">
             <distribution id="likelihood" spec="CompoundDistribution">
@@ -74,13 +62,7 @@
             </distribution>
 
             <distribution id="prior" spec="CompoundDistribution">
-                <distribution id="networkPrior" spec="CoalescentWithReassortment">
-                    <networkIntervals spec="NetworkIntervals" network="@network"/>
-                    <populationModel spec="ConstantPopulation">
-                        <popSize idref="popSize.t"/>
-                    </populationModel>
-                    <reassortmentRate idref="reassortmentRate"/>
-                </distribution>
+              insert_coal_prior
                 <prior id="ClockPrior.c" name="distribution" x="@clockRate.c">
                   <OneOnX id="Uniform.0" name="distr"/>
                 </prior>
@@ -91,10 +73,6 @@
                   <LogNormal id="LogNormalDistributionModel.PopSize" name="distr" M="0" S="4"/>
                 </prior>
 
-                <prior id="ReassortmentRatePrior" name="distribution" x="@reassortmentRate">
-                  <LogNormal id="LogNormalDistributionModel.reassortmentRate" meanInRealSpace="true" name="distr" M="0.1" S="4"/>
-                </prior>
-
 
             </distribution>
         </distribution>
@@ -102,7 +80,6 @@
 
 
 
-        <operator id="ReassortmentRateScaler" spec="ScaleOperator" parameter="@reassortmentRate" scaleFactor="0.5" weight="3"/>
         <operator id="NeScaler" spec="ScaleOperator" parameter="@popSize.t" scaleFactor="0.5" weight="3"/>
 
         insert_operators
@@ -110,63 +87,21 @@
 
         <operator id="FixMeanMutationRatesOperator" spec="DeltaExchangeOperator" delta="0.75" weight="3.0">
           insert_mut_par
-          <weightvector id="weightparameter" spec="parameter.IntegerParameter" dimension="4" estimate="false">
+          <weightvector id="weightparameter" spec="parameter.IntegerParameter" dimension="4" estimate="false" lower="0" upper="0">
             insert_weights
           </weightvector>
         </operator>
 
-        <operator id="upDownOperator" spec="NetworkScaleOperator" network="@network" weight="5.0">
+        <operator id="upDownOperator" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
             insert_seg_tree
-            <upParameter idref="popSize.t"/>
-            <downParameter idref="clockRate.c"/>
-            <downParameter idref="reassortmentRate"/>
+            <up idref="popSize.t"/>
+            <down idref="clockRate.c"/>
         </operator>
-
 
         <operator id="clockRatescaler" spec="ScaleOperator" parameter="@clockRate.c" scaleFactor="0.75" weight="3"/>
 
-        <operator spec="AddRemoveReassortment" network="@network" alpha="1.0" weight="100.0">
-          insert_seg_tree
-        </operator>
-
-      	<operator spec="DivertSegmentOperator" network="@network" weight="5.0">
-          insert_seg_tree
-        </operator>
-
-      	<operator spec="UniformNetworkNodeHeightOperator" network="@network" weight="5.0">
-          insert_seg_tree
-        </operator>
-
-        <operator id="NetworkScale" spec="NetworkScaleOperator" network="@network" weight="3.0">
-          insert_seg_tree
-        </operator>
-
-        <operator id="NetworkScaleRootOnly" spec="NetworkScaleOperator" network="@network" scaleRootOnly="true" weight="3.0">
-          insert_seg_tree
-        </operator>
-
-      	<operator spec="NetworkExchange" network="@network" isNarrow="false" weight="10.0">
-          insert_seg_tree
-        </operator>
-
-      	<operator spec="NetworkExchange" network="@network" isNarrow="true" weight="10.0">
-          insert_seg_tree
-        </operator>
-
-      	<operator spec="SubNetworkSlide" network="@network" weight="30.0">
-          insert_seg_tree
-        </operator>
-
-        <operator id="GibbsOperatorAboveSegmentRoots" spec="GibbsOperatorAboveSegmentRoots" network="@network" weight="3.0">
-          insert_seg_tree
-          <populationModel idref="popModel"/>
-          <reassortmentRate idref="reassortmentRate"/>
-        </operator>
 
 
-        <logger spec="Logger" logEvery="50000" mode="tree" fileName="$(filebase).network.trees">
-            <log idref="network"/>
-        </logger>
 
         insert_seg_logger
 
@@ -174,13 +109,7 @@
         <logger spec="Logger" logEvery="50000" fileName="$(filebase).log">
             <log idref="posterior"/>
             <log idref="likelihood"/>
-            <log idref="networkPrior"/>
-            <log spec="NetworkStatsLogger" network="@network"/>
-            <log spec="NetworkStatsLogger" network="@network">
-              insert_seg_tree
-            </log>
             <log idref="popSize.t"/>
-            <log idref="reassortmentRate"/>
             insert_stats_log
             <log idref="clockRate.c"/>
             insert_param_log
@@ -190,7 +119,6 @@
             <log idref="posterior"/>
             <log idref="likelihood"/>
             <log idref="prior"/>
-            <log spec="NetworkStatsLogger" network="@network"/>
             <log spec="ESS" arg="@posterior"/>
         </logger>
 

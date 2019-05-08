@@ -1,4 +1,7 @@
-function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,temperature,rngval)
+function [] = getXMLallsegmentsDummy(virus, workingdir, nrsequences, from, to,temperature,rngval)
+% same as getXMLallsegments.m, but adds a dummy segment without any
+% sequence information to allow sampling under the prior conditional on all
+% other segments
     cd(workingdir)
     
     rng(rngval)
@@ -73,16 +76,12 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
         end
         use_seqs(j) = add_seq;
     end
-    
-    use_seqs = sort(use_seqs);
 
     use_segs = segments;
 
     for r = 0 : 2
         f = fopen('../template.xml');
         g = fopen(['xmls/' virus '_rep' num2str(r) '.xml'], 'w');
-        
-        est_tip_time = cell(0,0);
         while ~feof(f)
             line = fgets(f);
             if ~isempty(strfind(line, 'insert_alignment'))
@@ -93,15 +92,7 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                     seq_length(i) = length(fasta(1).Sequence);
 
                     for j = 1 : length(use_seqs)
-%                         disp(unique_seqs{use_seqs(j)})
-%                         if i==2
-%                             fds
-%                         end
                         ind = find(ismember(seq_seqs{i}, unique_seqs{use_seqs(j)}));
-                        if isempty(ind)
-                            disp(unique_seqs{use_seqs(j)})
-                            disp(segments{i})
-                        end
                         ind = ind(1);
                         fprintf(g, '\t\t<sequence id="%s.%s" taxon="%s" totalcount="4" value="%s"/>\n',...
                              segments{i}, unique_seqs{use_seqs(j)},...
@@ -111,9 +102,9 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
 
                 end
             elseif ~isempty(strfind(line, 'insert_run_header'))
-%                  fprintf(g, '\t\t<run spec="MCMC" chainLength="200000000">\n');            
+    %              fprintf(g, '\t\t<run spec="MCMC" chainLength="200000000">\n');            
 
-                 fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="2500000" storeEvery="1000000" deltaTemperature="%.4f" chains="4" resampleEvery="5000">\n', temperature);            
+                 fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="5000000" storeEvery="1000000" deltaTemperature="%.4f" chains="4" resampleEvery="5000">\n', temperature);            
 
             elseif ~isempty(strfind(line, 'insert_taxa'))
                 for j = 1 : length(use_seqs)
@@ -125,13 +116,9 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                     tmp = strsplit(time{2}, '-');
                     % put the sampling time mid month 
                     if length(tmp) == 2
-                        error('sampling data no accurate enough');
+                        tmp{3} = '15';
+                        time{2} = [time{2} '-15'];
                     end
-                    if ~isempty(strfind(time{2}, 'XX-XX'))
-                        est_tip_time{end+1} = unique_seqs{use_seqs(j)};
-                        time{2} = strrep(time{2}, 'XX-XX', '07-01');
-                    end
-                        
                     deztime = (datenum(time{2},'yyyy-mm-dd')- datenum(tmp{1},'yyyy'))...
                         /(datenum(num2str(str2double(tmp{1})+1),'yyyy')-datenum(tmp{1},'yyyy'))...
                         +str2double(tmp{1});
@@ -144,18 +131,9 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                     end
                 end  
             elseif ~isempty(strfind(line, 'insert_nr_segments'))
-                fprintf(g, strrep(line, 'insert_nr_segments', num2str(length(use_segs))));
-            elseif contains(line, '<parameter id="clockRate.c" name="stateNode">')
-                 if ~isempty(est_tip_time)
-                     fprintf(g, strrep(line, 'name="stateNode">', 'lower="0.0015" name="stateNode">'));
-                 else
-                     fprintf(g, line);
-                 end
-            elseif ~isempty(strfind(line, 'insert_parameters'))
-                if ~isempty(est_tip_time)
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="dateOffset" name="stateNode">0.0</parameter>\n');
-                end
+                fprintf(g, strrep(line, 'insert_nr_segments', num2str(length(use_segs)+1)));
 
+            elseif ~isempty(strfind(line, 'insert_parameters'))
                 for s = 1 : length(use_segs)
                     fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_1" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
                     fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_3" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
@@ -166,33 +144,7 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                     fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_1" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
                     fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_3" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
                 end
-            elseif contains(line, '<init spec="SegmentTreeInitializer"')
-                if ~isempty(est_tip_time)
-                    fprintf(g, '\t\t\t\t<init spec="coalre.util.DateOffsetInitializer" dateOffset="@dateOffset">\n');
-                    for i = 1 : length(use_segs)
-                        fprintf(g, '\t\t\t\t\t<segmentTree idref="%s.tree"/>\n', use_segs{i}); 
-                    end
-                    fprintf(g, '\t\t\t\t</init>\n');
-                end
-                fprintf(g, line)
             elseif ~isempty(strfind(line, 'insert_priors'))
-                % insert sampling time priors
-                if ~isempty(est_tip_time)
-                    for s = 1 : length(est_tip_time)
-                        fprintf(g, '\t\t\t\t\t\t\t\t<distribution id="tipprior.%s" spec="coalre.distribution.TipPrior" dateOffset="@dateOffset" network="@network">\n', est_tip_time{s});
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t<taxonset id="tip.%s" spec="TaxonSet">\n', est_tip_time{s});
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t\t<taxon idref="%s"/>\n', est_tip_time{s});
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t</taxonset>\n');
-                        tmp = strsplit(est_tip_time{s}, '|');
-                        tmp = strsplit(tmp{2}, '-');          
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t<distr spec="coalre.util.WeightedSumDistribution">\n');
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t\t<Uniform id="Unform.%s" name="distr" lower="%s" upper="%d"/>\n', est_tip_time{s}, tmp{1}, str2double(tmp{1})+1);
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t\t<Uniform id="Unform.%s.2" name="distr" lower="1950" upper="1970"/>\n', est_tip_time{s});
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t\t<parameter id="weights.s:%s_3" lower="0.0" name="weights" upper="1.0">0.9 0.05</parameter>\n', est_tip_time{s});
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t</distr>\n');
-                        fprintf(g, '\t\t\t\t\t\t\t\t</distribution>\n');                    
-                    end
-                end
                 for s = 1 : length(use_segs)
 
                     fprintf(g, '\t\t\t\t\t\t\t\t<prior id="KappaPrior.s:%s_1" name="distribution" x="@kappa.s:%s_1">\n', use_segs{s}, use_segs{s});
@@ -210,19 +162,6 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
 
                 end
             elseif ~isempty(strfind(line, 'insert_operators'))
-                 
-                if ~isempty(est_tip_time)
-                    for s = 1 : length(est_tip_time)
-                        fprintf(g, '\t\t\t\t<operator spec="TipReheight" network="@network" size="0.1" dateOffset="@dateOffset" weight="0.01">\n');
-                        fprintf(g, '\t\t\t\t\t<taxonset idref="tip.%s"/>\n', est_tip_time{s});
-                        for i = 1 : length(use_segs)
-                            fprintf(g, '\t\t\t\t\t<segmentTree idref="%s.tree"/>\n', use_segs{i});                 
-                        end
-                        fprintf(g, '\t\t\t\t</operator>\n');                    
-                    end
-                end
-
-                
                 for s = 1 : length(use_segs)
                     fprintf(g, '\t\t\t\t<operator id="KappaScaler.s:%s_1" spec="ScaleOperator" parameter="@kappa.s:%s_1" scaleFactor="0.5" weight="0.1"/>\n', use_segs{s}, use_segs{s});
                     fprintf(g, '\t\t\t\t<operator id="KappaScaler.s:%s_3" spec="ScaleOperator" parameter="@kappa.s:%s_3" scaleFactor="0.5" weight="0.1"/>\n', use_segs{s}, use_segs{s});
@@ -237,12 +176,6 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                     fprintf(g, '\t\t\t\t\t<parameter idref="mutationRate.s:%s_3"/>\n', use_segs{s});
                 end
              elseif ~isempty(strfind(line, 'insert_param_log'))
-                 if ~isempty(est_tip_time)
-                    for s = 1 : length(est_tip_time)
-                        fprintf(g, '\t\t\t\t<log idref="tipprior.%s"/>\n', est_tip_time{s});
-                    end
-                 end
-
                 for s = 1 : length(use_segs)                   
                     fprintf(g, '\t\t\t\t<log idref="kappa.s:%s_1"/>\n', use_segs{s});
                     fprintf(g, '\t\t\t\t<log idref="kappa.s:%s_3"/>\n', use_segs{s});
@@ -286,10 +219,12 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                 for i = 1 : length(use_segs)
                      fprintf(g, '\t\t\t\t\t\t<stateNode id="%s.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>\n', use_segs{i});                 
                 end
+                     fprintf(g, '\t\t\t\t\t\t<stateNode id="dummy.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>\n');                 
             elseif ~isempty(strfind(line, 'insert_seg_tree'))
                 for i = 1 : length(use_segs)
                      fprintf(g, '\t\t\t\t\t<segmentTree idref="%s.tree"/>\n', use_segs{i});                 
                 end
+                 fprintf(g, '\t\t\t\t\t<segmentTree idref="dummy.tree"/>\n');                 
             elseif ~isempty(strfind(line, 'insert_seg_logger'))
                 for i = 1 : length(use_segs)
                     fprintf(g, '\t\t\t<logger spec="Logger" logEvery="50000" mode="tree" fileName="$(filebase).%s.trees">\n', use_segs{i});           
@@ -301,11 +236,6 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                 for i = 1 : length(use_segs)
                     fprintf(g, '\t\t\t\t<log spec="TreeStatLogger" tree="@%s.tree"/>\n', use_segs{i});      
                 end
-            elseif ~isempty(strfind(line, 'insert_seg_tree'))
-                for i = 1 : length(use_segs)
-                     fprintf(g, '\t\t\t\t\t<segmentTree idref="%s.tree"/>\n', use_segs{i});                 
-                end
-
             else
                 fprintf(g, line);
             end

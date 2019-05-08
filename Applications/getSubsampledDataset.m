@@ -99,125 +99,125 @@ for i = 1 : length(segments)
     system(sprintf('./../../Software/muscle3.8.31_i86darwin64 -in %s -out %s -maxiters 1 -diags', in, out));
 end
 %%
-disp('make FastTree trees')
-system('rm -r treetime')
-keep_leafs = cell(length(segments),1);
-for i = 1 : length(segments)
-    system('rm tree_file.trees')
-    in = ['data/' virus '_' segments_file{i} '.afas'];
-    disp('build fastTree');
-    system(sprintf('./../../Software/FastTree -gtr -nt < %s > tree_file.nwk', in));
-    
-    % build a file with the sampling times
-    disp('build sampling time map')
-    fasta = fastaread(in);
-    f = fopen('dates.csv','w');
-    fprintf(f, 'name,date\n');
-    for j = 1 : length(fasta)
-        fprintf(f, '%s,',fasta(j).Header);
-        tmp = strsplit(fasta(j).Header, '|');
-        time = tmp{end};
-        tmp = strsplit(time,'-');
-        
-        if length(tmp) == 2
-            tmp{3} = '15';
-            time = [time '-15'];
-        end
-
-        
-        deztime = (datenum(time,'yyyy-mm-dd')- datenum(tmp{1},'yyyy'))...
-                    /(datenum(num2str(str2double(tmp{1})+1),'yyyy')-datenum(tmp{1},'yyyy'))...
-                    +str2double(tmp{1});        
-        fprintf(f, '%.5f\n', deztime);
-    end
-    fclose(f);
-    disp('build timetree');
-    system(sprintf('rm -r timetree/%s',segments_file{i}))
-    system(sprintf('/usr/local/bin/treetime --clock-filter 0 --reroot ML --aln %s --tree tree_file.nwk --dates dates.csv --outdir timetree/%s',in,segments_file{i}));
-    
-end
-
-
-%%
-for i = 1 : length(segments)    
-    disp('read in time tree')
-    f = fopen(['timetree/' segments_file{i} '/divergence_tree.nexus']);
-    while ~feof(f)
-        line = fgets(f);
-        if length(line)>1000
-            tree = line;
-        end
-    end
-    tree = strrep(strtrim(tree), 'Tree tree1=', '');
-    tree=regexprep(tree, '\[(.*?)\]', '');
-    tree=regexprep(tree, 'NODE_(\d*)', '');
-
-
-    ptree = phytreeread(tree);
-    
-    
-    
-    all_leaves = get(ptree, 'leafnames');
-    % get the branch lengths
-    branches = get(ptree, 'Distances');
-    prunebranch = find(branches>0.1);    
-    if length(prunebranch)>0
-        largest_set = cell(length(prunebranch),1);
-        for prunenr = 1 : length(prunebranch)
-            righttree = prune(ptree, prunebranch(prunenr));
-            rightleafs = get(righttree, 'leafnames');
-            
-            if length(all_leaves)-length(rightleafs)>1
-                lefttree = subtree(ptree, prunebranch(prunenr));
-                % get the leafnames
-                leftleafs = get(lefttree, 'leafnames');
-                if length(rightleafs) > length(leftleafs)
-                    largest_set{prunenr} = rightleafs;
-                else
-                    largest_set{prunenr} = leftleafs;
-                end
-            else
-                largest_set{prunenr} = rightleafs;
-            end
-        end
-        
-        % get the intersection
-        intersectset = largest_set{1};
-        if length(prunebranch)>1
-            for prunenr = 2 : length(prunebranch)
-                intersectset = intersect(intersectset, largest_set{prunenr});
-            end
-        end
-        
-        
-        keep_leafs{i} = intersectset;
-    else
-        keep_leafs{i} = all_leaves;
-    end    
-    disp('done')
-end
-system('rm tree_file.nwk')
-system('rm dates.csv')
-
-
-%% reduce the alignment to only keep leaves that are present in all alignments
-% get the intersection
-useleaves = keep_leafs{1};
-for i = 2 : length(keep_leafs)
-    useleaves = intersect(useleaves, keep_leafs{i});
-end
-
-
+% disp('make FastTree trees')
+% system('rm -r treetime')
+% keep_leafs = cell(length(segments),1);
+% for i = 1 : length(segments)
+%     system('rm tree_file.trees')
+%     in = ['data/' virus '_' segments_file{i} '.afas'];
+%     disp('build fastTree');
+%     system(sprintf('./../../Software/FastTree -gtr -nt < %s > tree_file.nwk', in));
+%     
+%     % build a file with the sampling times
+%     disp('build sampling time map')
+%     fasta = fastaread(in);
+%     f = fopen('dates.csv','w');
+%     fprintf(f, 'name,date\n');
+%     for j = 1 : length(fasta)
+%         fprintf(f, '%s,',fasta(j).Header);
+%         tmp = strsplit(fasta(j).Header, '|');
+%         time = tmp{end};
+%         tmp = strsplit(time,'-');
+%         
+%         if length(tmp) == 2
+%             tmp{3} = '15';
+%             time = [time '-15'];
+%         end
+% 
+%         
+%         deztime = (datenum(time,'yyyy-mm-dd')- datenum(tmp{1},'yyyy'))...
+%                     /(datenum(num2str(str2double(tmp{1})+1),'yyyy')-datenum(tmp{1},'yyyy'))...
+%                     +str2double(tmp{1});        
+%         fprintf(f, '%.5f\n', deztime);
+%     end
+%     fclose(f);
+%     disp('build timetree');
+%     system(sprintf('rm -r timetree/%s',segments_file{i}))
+%     system(sprintf('/usr/local/bin/treetime --clock-filter 0 --reroot ML --aln %s --tree tree_file.nwk --dates dates.csv --outdir timetree/%s',in,segments_file{i}));
+%     
+% end
+% 
+% 
+% %%
+% for i = 1 : length(segments)    
+%     disp('read in time tree')
+%     f = fopen(['timetree/' segments_file{i} '/divergence_tree.nexus']);
+%     while ~feof(f)
+%         line = fgets(f);
+%         if length(line)>1000
+%             tree = line;
+%         end
+%     end
+%     tree = strrep(strtrim(tree), 'Tree tree1=', '');
+%     tree=regexprep(tree, '\[(.*?)\]', '');
+%     tree=regexprep(tree, 'NODE_(\d*)', '');
+% 
+% 
+%     ptree = phytreeread(tree);
+%     
+%     
+%     
+%     all_leaves = get(ptree, 'leafnames');
+%     % get the branch lengths
+%     branches = get(ptree, 'Distances');
+%     prunebranch = find(branches>0.1);    
+%     if length(prunebranch)>0
+%         largest_set = cell(length(prunebranch),1);
+%         for prunenr = 1 : length(prunebranch)
+%             righttree = prune(ptree, prunebranch(prunenr));
+%             rightleafs = get(righttree, 'leafnames');
+%             
+%             if length(all_leaves)-length(rightleafs)>1
+%                 lefttree = subtree(ptree, prunebranch(prunenr));
+%                 % get the leafnames
+%                 leftleafs = get(lefttree, 'leafnames');
+%                 if length(rightleafs) > length(leftleafs)
+%                     largest_set{prunenr} = rightleafs;
+%                 else
+%                     largest_set{prunenr} = leftleafs;
+%                 end
+%             else
+%                 largest_set{prunenr} = rightleafs;
+%             end
+%         end
+%         
+%         % get the intersection
+%         intersectset = largest_set{1};
+%         if length(prunebranch)>1
+%             for prunenr = 2 : length(prunebranch)
+%                 intersectset = intersect(intersectset, largest_set{prunenr});
+%             end
+%         end
+%         
+%         
+%         keep_leafs{i} = intersectset;
+%     else
+%         keep_leafs{i} = all_leaves;
+%     end    
+%     disp('done')
+% end
+% system('rm tree_file.nwk')
+% system('rm dates.csv')
+% 
+% 
+% %% reduce the alignment to only keep leaves that are present in all alignments
+% % get the intersection
+% useleaves = keep_leafs{1};
+% for i = 2 : length(keep_leafs)
+%     useleaves = intersect(useleaves, keep_leafs{i});
+% end
+% 
+% 
 disp('reduce taxa...')
 system('rm data/*.fasta');
 for i = 1 : length(segments)
     infasta = fastaread(['data/' virus '_' segments_file{i} '.afas']);
-    for j = length(infasta):-1:1
-        ind = find(ismember(infasta(j).Header, useleaves));
-        if isempty(ind)
-            infasta(j) = [];
-        end
-    end
+%     for j = length(infasta):-1:1
+%         ind = find(ismember(infasta(j).Header, useleaves));
+%         if isempty(ind)
+%             infasta(j) = [];
+%         end
+%     end
     % delete everything before the first ATG
     start = strfind(infasta(1).Sequence, 'ATG');
     for j = 1:length(infasta)        

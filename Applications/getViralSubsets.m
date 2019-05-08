@@ -5,12 +5,12 @@ dateorder = [3,1,2];
 
 currdir = cd;
 
-virus = {'h1n1pdm', 'h1n1sea','h3n2', 'h5n1', 'h7n9', 'h9n2'};
-workingdir = {'H1N1pandemic','H1N1seasonal', 'H3N2', 'H5N1', 'H7N9', 'H9N2'};
+virus = {'h1n1pdm', 'h1n1sea','h3n2', 'infB'};
+workingdir = {'H1N1pandemic','H1N1seasonal', 'H3N2', 'InfB'};
 
-nrseq = [500 1000 1000 500 500 500]
+nrseq = [500 1000 5000 2000];
 
-for i = 5% : length(virus)
+for i = 4% : length(virus)
     getSubsampledDataset(virus{i}, workingdir{i}, dateorder, nrseq(i));
     cd(currdir);
 end

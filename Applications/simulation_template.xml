@@ -1,0 +1,54 @@
+<beast version="2.0"
+       namespace="beast.core
+                 :beast.core.util
+                 :beast.core.parameter
+                 :beast.evolution.alignment
+                 :beast.evolution.likelihood
+                 :beast.evolution.tree
+                 :beast.evolution.tree.coalescent
+                 :beast.evolution.sitemodel
+                 :beast.evolution.substitutionmodel
+                 :beast.evolution.operators
+                 :beast.math.distributions
+                 :feast.simulation
+                 :coalre.network
+                 :coalre.statistics
+                 :coalre.simulator
+                 :coalre.distribution
+                 :coalre.operators">
+
+    <run spec="GPSimulator" nSims="1000">
+        <simulationObject id="network_truth" spec="SimulatedCoalescentNetwork">
+            <populationModel spec="ConstantPopulation">
+                <popSize spec="RealParameter" value="insert_Ne"/>
+            </populationModel>
+
+            <reassortmentRate spec="RealParameter" value="insert_reassortment_rate"/>
+
+            <taxonSet id="taxonSet" spec="TaxonSet">
+              insert_taxa
+            </taxonSet>
+
+            <traitSet spec="TraitSet" traitname="date-forward" id="traitSet">
+              insert_dates
+                <taxa idref="taxonSet"/>
+            </traitSet>
+
+            <segmentTree id="HA.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="MP.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="NA.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="NP.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="NS1.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="PA.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="PB1.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="PB2.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+
+        </simulationObject>
+
+        <logger spec="Logger" fileName="$(filebase).network.trees"  mode="tree" logEvery="1">
+            <log idref="network_truth"/>
+        </logger>
+
+    </run>
+
+</beast>
