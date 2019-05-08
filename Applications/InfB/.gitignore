@@ -9,3 +9,5 @@
 /trees/
 /xmls/
 /gisaid/
+/combined/*
+!/combined/*.summary.trees

@@ -18,7 +18,7 @@ system("mkdir combined")
 trees <- list.files(path=paste("./out/",sep=""), pattern="*rep0.*rk\\.trees$", full.names = TRUE)
 
 for (i in seq(1,length(trees))){
-  in_command <- " -b 20 -log"
+  in_command <- " -b 20 -resample 1000000 -log"
   for (j in seq(0,2)){
     in_command = paste(in_command, " ", gsub("rep0", paste("rep", j,sep=""), trees[i]), sep="")
   }
@@ -40,7 +40,7 @@ for (i in seq(1,length(networks))){
                networks[[i]], gsub("network.trees", "trunk.txt", networks[[i]])))
   system(paste("java -jar ./../../Software/ReassortmentDistance.jar -burnin 90",
                networks[[i]], gsub("network.trees", "distance.txt", networks[[i]])))
-  system(paste("java -jar ./../../Software/ReassortmentNetworkSummarizer.jar -burnin 0 -removeSegments 8",
+  system(paste("java -Xmx8g -jar ./../../Software/ReassortmentNetworkSummarizer.jar -burnin 0 -removeSegments 8",
                networks[[i]], gsub("network.trees", "summary.trees", networks[[i]])))
   
 }

@@ -8,3 +8,5 @@
 /timetree/
 /trees/
 /xmls/
+/combined/*
+!/combined/*.summary.trees

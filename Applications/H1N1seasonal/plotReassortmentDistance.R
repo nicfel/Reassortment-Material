@@ -109,10 +109,10 @@ dat$to = segments[dat$to+1]
 
 p_hist = ggplot()+
   geom_crossbar(data=dat, aes(x=from, y=mean,ymin=lower, ymax=upper,fill=from))+
-  geom_hline(yintercept=0, linetype="dashed", 
-             color = "red", size=2)+
   facet_grid(.~to) +
   scale_fill_OkabeIto() +
+  geom_hline(yintercept=0, 
+             color = "red", size=1)+
   theme_light()
 plot(p_hist)
 
