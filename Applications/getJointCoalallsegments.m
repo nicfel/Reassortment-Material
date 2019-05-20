@@ -151,10 +151,7 @@ function [] = getJointCoalallsegments(virus, workingdir, nrsequences, from, to,t
                     fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_1" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
                     fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_3" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
                     fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_1" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_3" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
-                    
-                    
-                    
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_3" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});                  
                 end
                 
             elseif ~isempty(strfind(line, 'seg_tree_init'))
@@ -282,7 +279,6 @@ function [] = getJointCoalallsegments(virus, workingdir, nrsequences, from, to,t
                     fprintf(g, '\t\t\t\t<log idref="%s.tree"/>\n', use_segs{i});           
                     fprintf(g, '\t\t\t</logger>\n');
                 end
-
             elseif ~isempty(strfind(line, 'insert_stats_log'))
                 for i = 1 : length(use_segs)
                     fprintf(g, '\t\t\t\t<log spec="TreeStatLogger" tree="@%s.tree"/>\n', use_segs{i});      

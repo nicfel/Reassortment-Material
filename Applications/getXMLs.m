@@ -21,17 +21,19 @@ temperature = temperature*2;
 
 
 
-for i = 8 : length(virus)-1
+for i = 1 : length(virus)-1
     if i==3
-        getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 1234567);
-        cd(currdir)
-        getJointCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 1234567);
+%         getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 1234567);
+%         cd(currdir)
+%         getJointCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 1234567);
+%         cd(currdir)
+        getIndividualCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 1234567);
     elseif i==7
-        getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 12345678);
-        cd(currdir)
-        getJointCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 12345678);
-    else
-        getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i),randi(1000000));
+%         getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 12345678);
+%         cd(currdir)
+%         getJointCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), 12345678);
+%     else
+%         getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i),randi(1000000));
     end
     cd(currdir)
 end

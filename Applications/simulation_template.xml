@@ -42,6 +42,7 @@
             <segmentTree id="PA.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
             <segmentTree id="PB1.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
             <segmentTree id="PB2.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
+            <segmentTree id="dummy.tree" spec="Tree" taxonset="@taxonSet" trait="@traitSet"/>
 
         </simulationObject>
 

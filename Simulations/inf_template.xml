@@ -200,25 +200,25 @@
         </operator>
 
 
-        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).trees">
+        <logger spec="Logger" logEvery="500000" mode="tree" fileName="$(filebase).trees">
             <log idref="network"/>
         </logger>
 
-        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg1.trees">
+        <!-- <logger spec="Logger" logEvery="500000" mode="tree" fileName="$(filebase).seg1.trees">
             <log idref="seg1tree"/>
         </logger>
 
-        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg2.trees">
+        <logger spec="Logger" logEvery="500000" mode="tree" fileName="$(filebase).seg2.trees">
             <log idref="seg2tree"/>
         </logger>
-        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg3.trees">
+        <logger spec="Logger" logEvery="500000" mode="tree" fileName="$(filebase).seg3.trees">
             <log idref="seg3tree"/>
         </logger>
-        <logger spec="Logger" logEvery="10000" mode="tree" fileName="$(filebase).seg4.trees">
+        <logger spec="Logger" logEvery="500000" mode="tree" fileName="$(filebase).seg4.trees">
             <log idref="seg4tree"/>
-        </logger>
+        </logger> -->
 
-        <logger spec="Logger" logEvery="10000" fileName="$(filebase).log">
+        <logger spec="Logger" logEvery="500000" fileName="$(filebase).log">
             <log idref="posterior"/>
             <log idref="likelihood"/>
             <log spec="NetworkStatsLogger" network="@network"/>

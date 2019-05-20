@@ -31,9 +31,8 @@ mu_rea = log(mean_rea) - sigma_rea^2/2;
 
 % define which evolutionary rates to use
 use_rates = {'high','high','high','high';
-             'high','high','low','low';
              'low','low','low','low'};
-evol_name = {'high', 'mixed', 'low'};
+evol_name = {'high', 'low'};
 
 
 % make nr reps number of xmls

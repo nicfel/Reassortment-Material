@@ -6,9 +6,9 @@ clear
 logs = dir('trees/clades/*new*.trees');
 
 g = fopen('trees/heights.csv', 'w');        
-fprintf(g, 'post1,post2,lower1,lower2,upper1,upper2,segment,time\n');
+fprintf(g, 'post1,post2,lower1,lower2,upper1,upper2,median1,median2,segment,time\n');
 
-for i = 1 : 2
+for i = 1 : 1
     for j = 1 : length(logs)
         segment = strrep(logs(j).name, 'h3n2new.','');
         segment = strrep(segment, '.trees','');
@@ -29,6 +29,7 @@ for i = 1 : 2
                 tree1 = line;
             end
         end
+        
         % get the second tree
         fclose(f);f = fopen(['trees/mcc/' filename]);
         while ~feof(f)
@@ -62,9 +63,13 @@ for i = 1 : 2
                 % get the height hpd's
                 fprintf(g, '%s,', strrep(tmp1{8}, 'height_95%_HPD={', ''));
                 fprintf(g, '%s,', strrep(tmp2{8}, 'height_95%_HPD={', ''));
-               
+                
                 fprintf(g, '%s,', strrep(tmp1{9}, '}', ''));
                 fprintf(g, '%s,', strrep(tmp2{9}, '}', ''));   
+                
+                fprintf(g, '%s,', strrep(tmp1{10}, 'height_median=', ''));
+                fprintf(g, '%s,', strrep(tmp2{10}, 'height_median=', ''));
+
                 
                 fprintf(g, '%s,%s\n', segment, time);
                 

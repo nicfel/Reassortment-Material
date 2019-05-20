@@ -18,15 +18,8 @@ setwd(this.dir)
 # read in the true rates
 true.rates <- read.table("rates.csv", header=TRUE, sep=",")
 
-# use the matlab standard colors to plot
-col0 <- rgb(red=0.0, green=0.4470,blue=0.7410)
-col1 <- rgb(red=0.8500, green=0.3250,blue=0.0980)
-col2 <- rgb(red=0.9290, green=0.6940,blue=0.1250)
-col4 <- rgb(red=0.4660, green=0.6740,blue=0.1880)
-col3 <- rgb(red=0.3010, green=0.7450,blue=0.9330)
 
-
-gen_information = c("low", "mixed", "high")
+gen_information = c("low", "high")
 
 for (g in seq(1,length(gen_information))){
   # get the names of all output files of the first replicate

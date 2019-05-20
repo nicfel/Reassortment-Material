@@ -38,8 +38,29 @@ networks <- list.files(path=paste("./combined/",sep=""), pattern="*rk\\.trees$",
 for (i in seq(1,length(networks))){
   system(paste("java -jar ./../../Software/TrunkReassortment.jar -burnin 0 -removeSegments 8 -trunkDefinition minTipDistance -minTipDistance 2",
                networks[[i]], gsub("network.trees", "trunk.txt", networks[[i]])))
-  system(paste("java -jar ./../../Software/ReassortmentDistance.jar",
+  system(paste("java -jar ./../../Software/ReassortmentDistance.jar -burnin 0",
                networks[[i]], gsub("network.trees", "distance.txt", networks[[i]])))
-  
+  system(paste("java -Xmx8g -jar ./../../Software/ReassortmentNetworkSummarizer.jar -burnin 0 -removeSegments 8",
+               networks[[i]], gsub("network.trees", "summary.trees", networks[[i]])))
 }
+
+# # compute the pairwise probabilities of observing a coalescent event
+# segments = c("HA", "MP", "NA", "NP", "NS1", "PA", "PB1", "PB2", "prior")
+# for (a in seq(1,length(segments)-1)){
+#   for (b in seq(1+1,length(segments))){
+#     remove_segments = seq(0,length(segments)-1)
+#     remove_segments = remove_segments[-c(a,b)]
+# 
+#     removestring = paste(remove_segments[[1]])
+#     for (i in seq(2,length(remove_segments))){
+#       removestring = paste(removestring, remove_segments[[i]], sep=",")
+#     }
+# 
+# 
+#     for (i in seq(1,length(networks))){
+#       system(paste("java -jar ./../../Software/ReassortmentNetworkSummarizer.jar -burnin 0 -removeSegments", removestring,
+#                    networks[[i]], gsub("network.trees", paste("", segments[[a]], "_",  segments[[b]], ".trees", sep=""), networks[[i]])))
+#     }
+#   }
+# }
 
