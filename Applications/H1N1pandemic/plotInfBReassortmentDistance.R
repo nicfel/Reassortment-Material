@@ -24,11 +24,11 @@ nrSegments = 9
 time =""
 
 # read in the file with the reassortment distances
-fileName= paste("combined/infB", time, ".distance.txt", sep="")
+fileName= paste("combined/h1n1pdm", time, ".distance.txt", sep="")
 con=file(fileName,open="r")
 line=readLines(con) 
 first = T
-for (i in seq(1200,length(line))){
+for (i in seq(1,length(line))){
   print(paste(i, "of", length(line)) )
   
   splitline = strsplit(line[[i]], split="\t")
@@ -92,44 +92,6 @@ for (i in seq(1200,length(line))){
       }
     }
   }
-  
-
-  # ks.results.less = ks.test(dat[obs.trunk,"dist"], dat[obs.off.trunk,"dist"], alternative = "less")
-  # ks.results.more = ks.test(dat[obs.trunk,"dist"], dat[obs.off.trunk,"dist"], alternative = "greater")
-  # 
-  # if (ks.results.more$p.value<ks.results.less$p.value){
-  #   new.reascount = data.frame(larger=1)
-  # }else{
-  #   new.reascount = data.frame(larger=0)
-  # }
-  # 
-  
-  # # count how many events there were between the segments
-  # for (a in seq(0,nrSegments-2)){
-  #   for (b in seq(0,nrSegments-2)){
-  #     if (a!=b){
-  #       obs.trunk = which(dat$from==a & dat$to==b & dat$trunk)
-  #       obs.off.trunk = which(dat$from==a & dat$to==b & !dat$trunk)
-  #       
-  #       # obs = union(obs, which(dat$from==b & dat$to==a))
-  #       # prior = which(dat$from==a & dat$to==nrSegments-1)
-  #       ks.results.less = ks.test(dat[obs.trunk,"dist"], dat[obs.off.trunk,"dist"], alternative = "less")
-  #       ks.results.more = ks.test(dat[obs.trunk,"dist"], dat[obs.off.trunk,"dist"], alternative = "greater")
-  #       
-  #       if (ks.results.more$p.value<ks.results.less$p.value){
-  #         new.reascount = data.frame(from=a,to=b,larger=1)
-  #       }else{
-  #         new.reascount = data.frame(from=a,to=b,larger=0)
-  #       }
-  #       if(first){
-  #         reascount = new.reascount
-  #         first = F
-  #       }else{
-  #         reascount = rbind(reascount, new.reascount)
-  #       }
-  #     }
-  #   }
-  # }
 }
 
 segments = c("HA", "MP", "NA", "NP", "NS", "PA", "PB1", "PB2", "dummy")
@@ -150,5 +112,5 @@ p <- ggplot(ecdf.dat) +
   theme_light()+
   scale_color_OkabeIto()
 plot(p)
-ggsave(plot=p,paste("../../../Reassortment-Text/Figures/distance/InfB.distance.pdf", sep=""), width=10, height=10)
+# ggsave(plot=p,paste("../../../Reassortment-Text/Figures/distance/H1N1pdm_distance.pdf", sep=""), width=10, height=10)
 

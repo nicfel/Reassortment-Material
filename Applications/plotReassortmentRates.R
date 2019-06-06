@@ -6,6 +6,7 @@
 ######################################################
 library(ggplot2)
 library("coda")
+library("colorblindr")
 
 # clear workspace
 rm(list = ls())
@@ -28,11 +29,37 @@ setwd(this.dir)
 # virusname = c("h1n1pdm", "h1n1sea", "h3n2", "h3n2ancient", "h3n2old","h3n2recent","h3n2new", "h2n2", "infB")
 
 
-viruses = c("H1N1seasonal", "H1N1pandemic" , "H3N2", "H2N2", "InfB")
+viruses = c("H1N1seasonal","H1N1seasonal","H1N1seasonal",
+            "H1N1pandemic","H1N1pandemic","H1N1pandemic",
+            "H3N2", "H3N2", "H3N2",
+            "H2N2",
+            "InfB", "InfB", "InfB")
 
-virus_labels = c("pre 09 H1N1", "p09 like H1N1",  "H3N2", "H2N2", "Influenza B")
+virus_labels = c("pre 09 H1N1", "pre 09 H1N1",  "pre 09 H1N1", 
+                 "p09 like H1N1", "p09 like H1N1",  "p09 like H1N1",  
+                 "H3N2", "H3N2", "H3N2",
+                 "H2N2",  
+                 "Influenza B", "Influenza B", "Influenza B")
 
-virusname = c("h1n1sea", "h1n1pdm", "h3n2", "h2n2", "infB")
+virusname = c("h1n1sea_sub1","h1n1sea_sub2","h1n1sea_sub3",
+              "h1n1pdm_sub1","h1n1pdm_sub2","h1n1pdm_sub3", 
+              "h3n2_sub1", "h3n2_sub2", "h3n2_sub3", 
+              "h2n2", 
+              "infB_sub1", "infB_sub2", "infB_sub3")
+
+replicate = c("1","2","3",
+              "1","2","3", 
+              "1", "2", "3", 
+              "2", 
+              "1", "2", "3")
+offset=0.2
+
+xval = c(1-offset,1,1+offset,
+         2-offset,2,2+offset,
+         3-offset,3,3+offset,
+         4,
+         5-offset,5,5+offset)
+
 
 
 
@@ -48,12 +75,16 @@ for(i in seq(1, length(viruses))){
   hpd.rea = HPDinterval(as.mcmc(t$reassortmentRate))
   hpd.ne = HPDinterval(as.mcmc(t$popSize.t))
   hpd.clock = HPDinterval(as.mcmc(t$clockRate.c))
+  hpd.eventsyear = HPDinterval(as.mcmc(t$network.obsReassortmentNodeCount/t$network.obsHeight))
   
   new.reassortment = data.frame(rate.lower=hpd.rea[1,"lower"], rate.upper=hpd.rea[1,"upper"],
                                 ne.lower=hpd.ne[1,"lower"], ne.upper=hpd.ne[1,"upper"],
-                                clock.lower=hpd.clock[1,"lower"], clock.upper=hpd.clock[1,"upper"])
+                                clock.lower=hpd.clock[1,"lower"], clock.upper=hpd.clock[1,"upper"],
+                                events.lower=hpd.eventsyear[1,"lower"], events.upper=hpd.eventsyear[1,"upper"])
   
   new.reassortment$virus = virus_labels[[i]]
+  new.reassortment$replicate = replicate[[i]]
+  new.reassortment$xval = xval[[i]]
   
   if (first){
     reassortment = new.reassortment
@@ -66,16 +97,36 @@ for(i in seq(1, length(viruses))){
 
 
 
-reassortment$virus = factor(reassortment$virus, levels = virus_labels)
+# reassortment$virus = factor(reassortment$virus, levels = virus_labels)
+
+
+tick_labels = c("pre 09 H1N1",
+                "p09 like H1N1",
+                "H3N2",
+                "H2N2",  
+                "Influenza B")
+
+p.events <- ggplot(reassortment) +
+  geom_linerange(aes(x=xval, ymin=events.lower, ymax=events.upper, color=replicate), size=4) +
+  xlab("") +
+  ylab("number of events per year") +
+  theme_minimal() +
+  scale_x_continuous(breaks=seq(1,5), label=tick_labels) +
+  scale_y_continuous(limits=c(0,8))+
+  scale_color_viridis_d()
+plot(p.events)
+ggsave(plot=p.events,paste("../../Reassortment-Text/Figures/networks/eventsyear.pdf", sep=""),width=7, height=3)
 
 
 p.rea <- ggplot(reassortment) +
-  geom_linerange(aes(x=virus, ymin=rate.lower, ymax=rate.upper), size=5) +
+  geom_linerange(aes(x=xval, ymin=rate.lower, ymax=rate.upper, color=replicate), size=4) +
   xlab("") +
   ylab("reassortment rate") +
-  theme_minimal()
+  theme_minimal() +
+  scale_x_continuous(breaks=seq(1,5), label=tick_labels) +
+  scale_color_viridis_d()
 plot(p.rea)
-ggsave(plot=p.rea,paste("../../Reassortment-Text/Figures/reassortmentRates.pdf", sep=""),width=5, height=3)
+ggsave(plot=p.rea,paste("../../Reassortment-Text/Figures/networks/reassortmentRates.pdf", sep=""),width=7, height=3)
 
 
 # p.ne <- ggplot(reassortment) +

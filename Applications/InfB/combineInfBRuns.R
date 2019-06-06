@@ -30,6 +30,7 @@ for (i in seq(1,length(trees))){
   system(paste("/Applications/BEAST\\ 2.5.2/bin/logcombiner", gsub(".network.trees",".log", in_command), gsub(".network.trees",".log", combined_command), sep=" "))
 }
 
+
 # compute how many reassortment events happen on the trunk vs. not on the trunk
 networks <- list.files(path=paste("./combined/",sep=""), pattern="*rk\\.trees$", full.names = TRUE)
 for (i in seq(1,length(networks))){
@@ -42,7 +43,7 @@ for (i in seq(1,length(networks))){
   system(paste("java -jar ./../../Software/ReassortmentDistance.jar -burnin 0",
                networks[[i]], gsub("network.trees", "distance.txt", networks[[i]])))
   system(paste("java -Xmx8g -jar ./../../Software/ReassortmentNetworkSummarizer.jar -burnin 0 -removeSegments 8",
-               networks[[i]], gsub("network.trees", "summary.trees", networks[[i]])))w
+               networks[[i]], gsub("network.trees", "summary.trees", networks[[i]])))
 
 }
 

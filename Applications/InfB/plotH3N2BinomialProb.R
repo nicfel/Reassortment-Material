@@ -24,7 +24,7 @@ nrSegments = 9
 first = T
 
 # read in the file with the reassortment distances
-fileName= paste("./combined/infB.distance.txt",sep="")
+fileName= paste("./combined/InfB.distance.txt",sep="")
 con=file(fileName,open="r")
 line=readLines(con) 
 close(con)
@@ -60,11 +60,6 @@ for (i in seq(1,length(line))){
   new.reascount = data.frame(larger=1, trunk=mean(data[which(data$trunk),"seg1"]), nontrunk=mean(data[which(!data$trunk),"seg1"]),
                              prior.trunk=mean(data[which(data$trunk),"random"]), prior.nontrunk=mean(data[which(!data$trunk),"random"]))
   
-  # if (mean(data[which(data$trunk),"seg1"])<mean(data[which(!data$trunk),"seg1"])){
-  #   new.reascount = data.frame(larger=1, trunk=mean(data[which(data$trunk),"seg1"]), nontrunk=mean(data[which(!data$trunk),"seg1"]))
-  # }else{
-  #   new.reascount = data.frame(larger=0, trunk=mean(data[which(data$trunk),"seg1"]), nontrunk=mean(data[which(!data$trunk),"seg1"]))
-  # }
   if(first){
     reascount = new.reascount
     first = F
@@ -76,9 +71,8 @@ for (i in seq(1,length(line))){
 
 
 p <- ggplot(reascount) +
-  geom_density(aes(fill="on trunk", trunk/prior.trunk), alpha=0.25) +
-  geom_density(aes(fill="off trunk",nontrunk/prior.nontrunk), alpha=0.25) +
-  geom_density(aes(fill="ratio",trunk/nontrunk), alpha=0.25) +
+  geom_violin(aes(x="ratio",y=trunk/nontrunk)) +
+  geom_violin(aes(x="prior ratio",y=prior.trunk/prior.nontrunk)) +
   theme_light() +
   scale_fill_OkabeIto()
 

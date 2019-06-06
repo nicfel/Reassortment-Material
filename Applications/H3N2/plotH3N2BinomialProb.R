@@ -71,9 +71,8 @@ for (i in seq(1,length(line))){
 
 
 p <- ggplot(reascount) +
-  geom_density(aes(fill="on trunk", trunk/prior.trunk)) +
-  geom_density(aes(fill="off trunk",nontrunk/prior.nontrunk)) +
-  geom_density(aes(fill="ratio",trunk/nontrunk)) +
+  geom_violin(aes(x="ratio",y=trunk/nontrunk)) +
+  geom_violin(aes(x="prior ratio",y=prior.trunk/prior.nontrunk)) +
   theme_light() +
   scale_fill_OkabeIto()
   

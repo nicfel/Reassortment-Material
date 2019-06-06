@@ -47,18 +47,16 @@ for (i in seq(1,length(trees))){
 system("rm -r trees/clades")
 system("mkdir trees/clades")
 
-timewindow = c("" ,"new")
-for (i in seq(1,length(timewindow))){
-  for (j in seq(1, length(segments))){
-    target = paste("./trees/mcc/h3n2", timewindow[[i]], ".", segments[[j]], ".trees", sep="")
-    tree = paste("./trees/combined/h3n2", timewindow[[i]], "norea.", segments[[j]], ".trees", sep="")
-    tree2 = paste("./trees/combined/h3n2", timewindow[[i]], "ind.", segments[[j]], ".trees", sep="")
-    print(tree)
-    outfile = paste("./trees/clades/h3n2", timewindow[[i]], ".", segments[[j]], ".trees", sep="")
-    outfile2 = paste("./trees/clades/h3n2", timewindow[[i]], ".", segments[[j]], ".ind.trees", sep="")
-    
-    system(paste("/Applications/BEAST\\ 2.5.2/bin/treeannotator -heights mean -burnin 0 -target",target, tree,  outfile))
-    system(paste("/Applications/BEAST\\ 2.5.2/bin/treeannotator -heights mean -burnin 0 -target",target, tree2,  outfile2))
-    
-  }
+for (j in seq(1, length(segments))){
+  target = paste("./trees/mcc/h3n2_sub1.", segments[[j]], ".trees", sep="")
+  tree = paste("./trees/combined/h3n2_sub1norea.", segments[[j]], ".trees", sep="")
+  tree2 = paste("./trees/combined/h3n2_sub1ind.", segments[[j]], ".trees", sep="")
+  print(tree)
+  outfile = paste("./trees/clades/h3n2.", segments[[j]], ".trees", sep="")
+  outfile2 = paste("./trees/clades/h3n2.", segments[[j]], ".ind.trees", sep="")
+  
+  system(paste("/Applications/BEAST\\ 2.5.2/bin/treeannotator -heights mean -burnin 0 -target",target, tree,  outfile))
+  system(paste("/Applications/BEAST\\ 2.5.2/bin/treeannotator -heights mean -burnin 0 -target",target, tree2,  outfile2))
+  
 }
+

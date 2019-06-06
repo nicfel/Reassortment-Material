@@ -114,7 +114,7 @@ ecdf.dat$seg1 <- factor(ecdf.dat$seg1, levels =segments)
 ecdf.dat$seg2 <- factor(ecdf.dat$seg2, levels =segments)
 
 
-p <- ggplot(ecdf.dat) + geom_point(aes(x=x,y=y,color=trunk), alpha=0.05)+
+p <- ggplot(ecdf.dat) + 
   geom_smooth(aes(x=x,y=y,color=trunk)) +
   scale_x_continuous(limits=c(0,7.5)) +
   scale_y_continuous(limits=c(0,1)) +
@@ -124,5 +124,5 @@ p <- ggplot(ecdf.dat) + geom_point(aes(x=x,y=y,color=trunk), alpha=0.05)+
   theme_light()+
   scale_color_OkabeIto()
 plot(p)
-ggsave(plot=p,paste("../../../Reassortment-Text/Figures/distance/H3N2.distance.pdf", sep=""), width=10, height=10)
+ggsave(plot=p,paste("../../../Reassortment-Text/Figures/distance/H3N2_distance.pdf", sep=""), width=10, height=10)
 

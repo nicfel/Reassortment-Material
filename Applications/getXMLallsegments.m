@@ -113,7 +113,7 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
             elseif ~isempty(strfind(line, 'insert_run_header'))
 %                  fprintf(g, '\t\t<run spec="MCMC" chainLength="200000000">\n');            
 
-                 fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="2500000" storeEvery="1000000" deltaTemperature="%.4f" chains="4" resampleEvery="5000">\n', temperature);            
+                 fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="5000000" storeEvery="1000000" deltaTemperature="%.4f" chains="4" resampleEvery="5000">\n', temperature);            
 
             elseif ~isempty(strfind(line, 'insert_taxa'))
                 for j = 1 : length(use_seqs)
@@ -145,24 +145,18 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                 end  
             elseif ~isempty(strfind(line, 'insert_nr_segments'))
                 fprintf(g, strrep(line, 'insert_nr_segments', num2str(length(use_segs))));
-            elseif contains(line, '<parameter id="clockRate.c" name="stateNode">')
-                 if ~isempty(est_tip_time)
-                     fprintf(g, strrep(line, 'name="stateNode">', 'lower="0.0015" name="stateNode">'));
-                 else
-                     fprintf(g, line);
-                 end
             elseif ~isempty(strfind(line, 'insert_parameters'))
                 if ~isempty(est_tip_time)
                     fprintf(g, '\t\t\t\t\t\t<parameter id="dateOffset" name="stateNode">0.0</parameter>\n');
                 end
 
                 for s = 1 : length(use_segs)
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_1" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_3" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_1" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_3" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
                     fprintf(g, '\t\t\t\t\t\t<parameter id="mutationRate.s:%s_1" name="stateNode">1</parameter>\n',use_segs{s});
                     fprintf(g, '\t\t\t\t\t\t<parameter id="mutationRate.s:%s_3" name="stateNode">1</parameter>\n',use_segs{s});
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_1" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_3" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_1" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_3" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
                     fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_1" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
                     fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_3" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
                 end
@@ -188,7 +182,7 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                         fprintf(g, '\t\t\t\t\t\t\t\t\t<distr spec="coalre.util.WeightedSumDistribution">\n');
                         fprintf(g, '\t\t\t\t\t\t\t\t\t\t<Uniform id="Unform.%s" name="distr" lower="%s" upper="%d"/>\n', est_tip_time{s}, tmp{1}, str2double(tmp{1})+1);
                         fprintf(g, '\t\t\t\t\t\t\t\t\t\t<Uniform id="Unform.%s.2" name="distr" lower="1950" upper="1970"/>\n', est_tip_time{s});
-                        fprintf(g, '\t\t\t\t\t\t\t\t\t\t<parameter id="weights.s:%s_3" lower="0.0" name="weights" upper="1.0">0.9 0.05</parameter>\n', est_tip_time{s});
+                        fprintf(g, '\t\t\t\t\t\t\t\t\t\t<parameter id="weights.s:%s_3" lower="0.0" name="weights" upper="1.0">0.99 0.01</parameter>\n', est_tip_time{s});
                         fprintf(g, '\t\t\t\t\t\t\t\t\t</distr>\n');
                         fprintf(g, '\t\t\t\t\t\t\t\t</distribution>\n');                    
                     end
@@ -213,7 +207,7 @@ function [] = getXMLallsegments(virus, workingdir, nrsequences, from, to,tempera
                  
                 if ~isempty(est_tip_time)
                     for s = 1 : length(est_tip_time)
-                        fprintf(g, '\t\t\t\t<operator spec="TipReheight" network="@network" size="0.1" dateOffset="@dateOffset" weight="0.01">\n');
+                        fprintf(g, '\t\t\t\t<operator spec="TipReheight" network="@network" size="0.1" dateOffset="@dateOffset" weight="0.1">\n');
                         fprintf(g, '\t\t\t\t\t<taxonset idref="tip.%s"/>\n', est_tip_time{s});
                         for i = 1 : length(use_segs)
                             fprintf(g, '\t\t\t\t\t<segmentTree idref="%s.tree"/>\n', use_segs{i});                 

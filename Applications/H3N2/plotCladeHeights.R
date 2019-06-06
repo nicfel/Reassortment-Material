@@ -46,7 +46,7 @@ p.ne <- ggplot() +
   geom_density(data=t.norea,aes(popSize.t, fill=" independent segments")) +
   theme_minimal()+
   xlab("effective population size")+
-  scale_fill_OkabeIto() +
+  scale_fill_brewer() +
   theme(legend.position="none",
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank()
@@ -59,7 +59,7 @@ p.clock <- ggplot() +
   geom_density(data=t.norea, aes(clockRate.c, fill=" independent segments")) +
   theme_minimal()+
   xlab("clock rate")+
-  scale_fill_OkabeIto() +
+  scale_fill_brewer() +
   theme(legend.title = element_blank(),
         legend.position="top",
         axis.text.y = element_blank(),

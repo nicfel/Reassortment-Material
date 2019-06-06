@@ -32,16 +32,16 @@ first = T;
 for(i in seq(1, length(viruses))){
   # get the names run log files
   # set the log file name
-  filename = path=paste("./",viruses[[i]] ,"/combined/", virusname[[i]],".trunk.txt", sep="")
+  filename = path=paste("./combined/", virusname[[i]],".trunk.txt", sep="")
   
   # read the file in
   t <- read.table(filename, header=F, sep="\t")
   
   new.rate.diff = data.frame(virus=virus_labels[[i]], rate.diff=t$V1/t$V3-t$V2/t$V4)
   
-  new.trunk.rate = data.frame(rate=t$V1/t$V3, virus = paste(virus_labels[[i]]), trunk="on trunk", ratio="absolute values")
-  new.trunk.rate = rbind(new.trunk.rate, data.frame(rate=t$V2/t$V4,  virus = paste(virus_labels[[i]]), trunk="off trunk", ratio="absolute values"))
-  new.trunk.rate = rbind(new.trunk.rate, data.frame(rate=t$V1/t$V3-t$V2/t$V4,  virus = paste(virus_labels[[i]]), trunk="on trunk minus off trunk", ratio="on trunk minus off trunk"))
+  new.trunk.rate = data.frame(rate=t$V1/t$V3, virus = paste(virus_labels[[i]]), trunk="on trunk rates", ratio="number of events per lineage and year")
+  new.trunk.rate = rbind(new.trunk.rate, data.frame(rate=t$V2/t$V4,  virus = paste(virus_labels[[i]]), trunk="off trunk rates", ratio="number of events per lineage and year"))
+  new.trunk.rate = rbind(new.trunk.rate, data.frame(rate=t$V1/t$V3-t$V2/t$V4,  virus = paste(virus_labels[[i]]), trunk="rate difference", ratio="difference in the number of events per lineage and year"))
   
   if (first){
     rate.diff = new.rate.diff
@@ -65,13 +65,13 @@ plot(p)
 p <- ggplot(trunk.rate) +
   geom_violin(aes(x=virus,y=rate, fill=trunk))+
   scale_fill_OkabeIto() +
-  ylab("nr events over length") +
+  ylab("") +
   theme(legend.position = "none")+
-  facet_grid(ratio~., scale="free_y") +
+  facet_wrap(ratio~., scale="free_y", ncol=1) +
   theme_minimal() +
   theme(strip.background = element_blank(),
-  strip.text.y = element_blank()) +
+        strip.text.y = element_blank()) +
   xlab("")
 
 plot(p)
-ggsave(plot=p,paste("../../Reassortment-Text/Figures/trunk_rates_h3n2.pdf", sep=""),width=10, height=3)
+ggsave(plot=p,paste("../../../Reassortment-Text/Figures/trunk_rates_h3n2.pdf", sep=""),width=10, height=3)

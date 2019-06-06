@@ -1,4 +1,4 @@
-function [] = getIndividualCoalallsegments(virus, workingdir, nrsequences, from, to,temperature, rngval)
+function [] = getIndividualCoalallsegments(virus, workingdir, nrsequences, from, to,temperature, rngval, outgroupyear)
     cd(workingdir)
     
     rng(rngval)
@@ -30,7 +30,7 @@ function [] = getIndividualCoalallsegments(virus, workingdir, nrsequences, from,
             % check if the year is within the limits
             tmp = strsplit(unique_seqs{i}, '|');
             tmp2 = strsplit(tmp{2}, '-');
-            if str2double(tmp2{1})<from || str2double(tmp2{1})>to
+        if (str2double(tmp2{1})<from || str2double(tmp2{1})>to) && str2double(tmp2{1})~=outgroupyear
                 unique_seqs(i) = [];
             end              
         end
@@ -74,6 +74,20 @@ function [] = getIndividualCoalallsegments(virus, workingdir, nrsequences, from,
         end
         use_seqs(j) = add_seq;
     end
+    
+    if outgroupyear~=0
+        % add a random outgroup in the outgroupyear
+        weights = zeros(length(year),1);
+        for i = 1 : length(weights)
+            if year(i) == outgroupyear
+                weights(i) = 1/(sum(year==year(i)));
+            end
+        end
+
+        add_seq = randsample(length(unique_seqs), 1, true, weights);
+        use_seqs(end+1) = add_seq;
+    end
+
 
     use_segs = segments;
 
@@ -159,15 +173,14 @@ function [] = getIndividualCoalallsegments(virus, workingdir, nrsequences, from,
             elseif ~isempty(strfind(line, 'insert_parameters'))
 
                 for s = 1 : length(use_segs)
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_1" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_3" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_1" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="kappa.s:%s_3" lower="0.0" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
                     fprintf(g, '\t\t\t\t\t\t<parameter id="mutationRate.s:%s_1" name="stateNode">1</parameter>\n',use_segs{s});
                     fprintf(g, '\t\t\t\t\t\t<parameter id="mutationRate.s:%s_3" name="stateNode">1</parameter>\n',use_segs{s});
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_1" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_3" name="stateNode">%f</parameter>\n',use_segs{s}, exprnd(1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_1" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="gammaShape.s:%s_3" name="stateNode">%f</parameter>\n',use_segs{s}, lognrnd(0,0.5,1));
                     fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_1" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_3" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});                  
-                    fprintf(g, '\t\t\t\t\t\t<parameter id="popSize:%s" dimension="1" lower="0.0" name="stateNode">2</parameter>\n',use_segs{s});                  
+                    fprintf(g, '\t\t\t\t\t\t<parameter id="freqParameter.s:%s_3" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>\n',use_segs{s});
                 end
                 
             elseif ~isempty(strfind(line, 'seg_tree_init'))

@@ -51,9 +51,11 @@ for i = 1 : length(unique_names)
         end
     end
     if sum(indices(i,:)>0)~=8
+        disp(year(same_indices(1)))
         sampling_year(i) = 0;
     end
 end    
+disp('got sampling years')
 
 % get the weights for the subsampling
 unique_years = unique(sampling_year(sampling_year>0));

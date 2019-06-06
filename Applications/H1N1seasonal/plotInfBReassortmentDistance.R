@@ -24,11 +24,11 @@ nrSegments = 9
 time =""
 
 # read in the file with the reassortment distances
-fileName= paste("combined/infB", time, ".distance.txt", sep="")
+fileName= paste("combined/h1n1sea", time, ".distance.txt", sep="")
 con=file(fileName,open="r")
 line=readLines(con) 
 first = T
-for (i in seq(1200,length(line))){
+for (i in seq(1,length(line))){
   print(paste(i, "of", length(line)) )
   
   splitline = strsplit(line[[i]], split="\t")
@@ -150,5 +150,5 @@ p <- ggplot(ecdf.dat) +
   theme_light()+
   scale_color_OkabeIto()
 plot(p)
-ggsave(plot=p,paste("../../../Reassortment-Text/Figures/distance/InfB.distance.pdf", sep=""), width=10, height=10)
+# ggsave(plot=p,paste("../../../Reassortment-Text/Figures/distance/H1N1sea_distance.pdf", sep=""), width=10, height=10)
 
