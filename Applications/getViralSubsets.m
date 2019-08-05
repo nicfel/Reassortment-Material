@@ -12,7 +12,12 @@ workingdir = {'H1N1pandemic','H1N1seasonal', 'H3N2', 'InfB'};
 nrseq = [2000 1037 5000 2000];
 
 for i = 3% : length(virus)
-    getSubsampledDataset(virus{i}, workingdir{i}, dateorder, nrseq(i));
-    cd(currdir);
+    if i>2
+        getSubsampledDatasetSegNr(virus{i}, workingdir{i}, dateorder, nrseq(i));
+        cd(currdir);
+    else
+        getSubsampledDataset(virus{i}, workingdir{i}, dateorder, nrseq(i));
+        cd(currdir);
+    end
 end
     

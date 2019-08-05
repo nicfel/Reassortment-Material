@@ -24,7 +24,7 @@ nrSegments = 9
 first = T
 
 # read in the file with the reassortment distances
-fileName= paste("./combined/h3n2.distance.txt",sep="")
+fileName= paste("./combined/h3n2new.distance.txt",sep="")
 con=file(fileName,open="r")
 line=readLines(con) 
 close(con)
@@ -71,8 +71,8 @@ for (i in seq(1,length(line))){
 
 
 p <- ggplot(reascount) +
-  geom_violin(aes(x="ratio",y=trunk/nontrunk)) +
-  geom_violin(aes(x="prior ratio",y=prior.trunk/prior.nontrunk)) +
+  geom_violin(aes(x="ratio",y=trunk/prior.trunk)) +
+  geom_violin(aes(x="prior ratio",y=nontrunk/prior.nontrunk)) +
   theme_light() +
   scale_fill_OkabeIto()
   

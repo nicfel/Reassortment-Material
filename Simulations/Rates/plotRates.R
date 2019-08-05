@@ -102,8 +102,8 @@ p.Ne.comp <- ggplot(Ne)+
   theme_light() +
   scale_y_log10() +
   scale_x_log10() +
-  xlab("low genetic information")+
-  ylab("high genetic information")+
+  xlab("estimated using low evolutionary rate")+
+  ylab("estimated using high evolutionary rate")+
   ggtitle("effective population sizes")
 plot(p.Ne.comp)
 
@@ -115,13 +115,13 @@ p.rea.comp <- ggplot(rea)+
   theme_light() +
   scale_y_log10() +
   scale_x_log10() +
-  xlab("low genetic information")+
-  ylab("high genetic information") +
+  xlab("estimated using low evolutionary rate")+
+  ylab("estimated using high evolutionary rate")+
   ggtitle("reassortment rates")
 plot(p.rea.comp)
 
-ggsave(plot=p.Ne.comp,paste("../../Reassortment-Text/Figures/simulation/Ne_comp.pdf", sep=""),width=6, height=5)
-ggsave(plot=p.rea.comp,paste("../../Reassortment-Text/Figures/simulation/rho_comp.pdf", sep=""),width=6, height=5)
+ggsave(plot=p.Ne.comp,paste("../../../Reassortment-Text/Figures/simulation/Ne_comp.pdf", sep=""),width=4, height=4)
+ggsave(plot=p.rea.comp,paste("../../../Reassortment-Text/Figures/simulation/rho_comp.pdf", sep=""),width=4, height=4)
 
 
 p.Ne <- ggplot(Ne)+
@@ -130,7 +130,10 @@ p.Ne <- ggplot(Ne)+
   geom_point(aes(x=true, y=estimated), size=2) + 
   theme_minimal() +
   scale_y_log10() +
-  scale_x_log10() 
+  scale_x_log10() +
+  xlab("true effective population size")+
+  ylab("estimated effective population size")
+  
 
 p.rea <- ggplot(rea)+
   geom_abline(intercept = 0, color="red", linetype="dashed")+
@@ -138,15 +141,18 @@ p.rea <- ggplot(rea)+
   geom_point(aes(x=true, y=estimated), size=2) + 
   theme_minimal() +
   scale_y_log10() +
-  scale_x_log10() 
+  scale_x_log10() +
+  xlab("true reassortment rate")+
+  ylab("estimated reassortment rate")
+
 
 # scale_y_log10(limits=c(0.01,1.0)) +
 # scale_x_log10(limits=c(0.01,1.0)) 
 
 plot(p.Ne)
 plot(p.rea)
-# ggsave(plot=p.Ne,paste("../../Reassortment-Text/Figures/Ne_sim_", gen_information[[g]], ".pdf", sep=""),width=6, height=5)
-# ggsave(plot=p.rea,paste("../../Reassortment-Text/Figures/rho_sim_", gen_information[[g]], ".pdf", sep=""),width=6, height=5)
+ggsave(plot=p.Ne,paste("../../../Reassortment-Text/Figures/simulation/Ne_sim.pdf", sep=""),width=4, height=4)
+ggsave(plot=p.rea,paste("../../../Reassortment-Text/Figures/simulation/rho_sim.pdf", sep=""),width=4, height=4)
 
 
 

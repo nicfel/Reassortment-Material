@@ -59,7 +59,7 @@
                 <parameter id="reassortmentRate.init" name="reassortmentRate">0.1</parameter>
             </stateNode>
             <parameter id="reassortmentRate" name="stateNode">0.1</parameter>
-            <parameter id="clockRate.c" name="stateNode">0.0036</parameter>
+            <parameter id="clockRate.c" name="stateNode" lower="0.0015">0.0036</parameter>
             <parameter id="popSize.t" name="stateNode">2</parameter>
             insert_parameters
         </state>

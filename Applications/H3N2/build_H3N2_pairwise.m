@@ -4,17 +4,18 @@ clear; fclose('all');
 segs_files = dir('data/*.fasta');
 
 % define from when to when to take sequence
-from = 1980;
+from = 2017;
 to = 2020;
 
 % set the random number generator
-rng(48937345);
+rng(756643);
+
+
+outgroupyear = 2010
 
 % define the number of sequences to use 
-nrsequences = 400;
-% nrsequences = 200;
-
-
+% nrsequences = 50;
+nrsequences = 200;
 seqs = cell(0,0);
 seq_seqs = cell(0,0);
 segments = cell(0,0);
@@ -32,7 +33,19 @@ end
 
 % get all unique sequences
 unique_seqs = unique(seqs);
-
+% get the frequency of all sequences
+for i = length(unique_seqs):-1:1
+    if sum(ismember(seqs, unique_seqs{i}))==8
+        % check if the year is within the limits
+        tmp = strsplit(unique_seqs{i}, '|');
+        tmp2 = strsplit(tmp{2}, '-');
+        if (str2double(tmp2{1})<from || str2double(tmp2{1})>to) && str2double(tmp2{1})~=outgroupyear
+            unique_seqs(i) = [];
+        end              
+    else
+        unique_seqs(i) = [];
+    end
+end
 
 % delete any sequence for which the data isn't specified to the day
 year = zeros(0,0);
@@ -45,10 +58,13 @@ for i = length(unique_seqs) : -1 : 1
         year(i) = [];
     end        
 end
+
 % check if the dimension of the year vector is correct
 if length(year)~=length(unique_seqs)
     error('error in the definition of the number of years');
 end
+
+
 % get the weights of each sequence as the inverse number of samples per
 % year if the year is within from to
 weights = zeros(length(year),1);
@@ -57,6 +73,7 @@ for i = 1 : length(weights)
         weights(i) = 1/(sum(year==year(i)));
     end
 end
+
 
 use_seqs = zeros(min(sum(weights>0), nrsequences),1);
 for j = 1 : length(use_seqs)    
@@ -71,6 +88,19 @@ for j = 1 : length(use_seqs)
         end
     end
     use_seqs(j) = add_seq;
+end
+
+if outgroupyear~=0
+    % add a random outgroup in the outgroupyear
+    weights = zeros(length(year),1);
+    for i = 1 : length(weights)
+        if year(i) == outgroupyear
+            weights(i) = 1/(sum(year==year(i)));
+        end
+    end
+
+    add_seq = randsample(length(unique_seqs), 1, true, weights);
+    use_seqs(end+1) = add_seq;
 end
 
 
@@ -108,7 +138,7 @@ for a = 1 : length(segments)
 
                     end
                 elseif ~isempty(strfind(line, 'insert_run_header'))
-                     fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="2000000" storeEvery="1000000" deltaTemperature="0.05" chains="4" resampleEvery="5000">\n');            
+                     fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="2000000" storeEvery="1000000" deltaTemperature="0.05" chains="2" resampleEvery="5000">\n');            
 %                      fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="2500000" storeEvery="1000000" deltaTemperature="0.025" chains="4" resampleEvery="5000">\n');            
                 elseif ~isempty(strfind(line, 'insert_taxa'))
                     for j = 1 : length(use_seqs)

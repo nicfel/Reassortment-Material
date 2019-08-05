@@ -1,4 +1,4 @@
-/data/
+/before/
 /out/
 /oridata/
 /pairout/
@@ -7,7 +7,8 @@
 /simulation/
 /timetree/
 /trees/
-/xmls/
+/xmls/*rep1.xml
+/xmls/*rep2.xml
 /gisaid/
 /combined/*
 !/combined/*.summary.trees

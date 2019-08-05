@@ -35,7 +35,7 @@ to =   [2019, 2019, 2019,...
         2005, ...
         2020, ...
         2020, ...
-        2019, 2019, 2019,...
+        2020, 2020, 2020,...
         1970];
 
 temperature = [0.005, 0.005, 0.005,...
@@ -49,10 +49,10 @@ temperature = [0.005, 0.005, 0.005,...
     
 temperature = temperature*2;
 % delete all xmls in all working dirs
-for i = 1 : length(workingdir)
-    system(sprintf('rm -r %s/xmls', workingdir{i}));
-    system(sprintf('mkdir %s/xmls', workingdir{i}));
-end
+% for i = 1 : length(workingdir)
+%     system(sprintf('rm -r %s/xmls', workingdir{i}));
+%     system(sprintf('mkdir %s/xmls', workingdir{i}));
+% end
 
 % values for the random number generator that were at some point sampled at
 % random from randi(1000000,12,1). This is done to be able to reproduce the
@@ -60,21 +60,43 @@ end
 rng_values = [171814,248584,744915,868949,146144,133529,337763,559988,653274,471007,787131,756643,522089,51096,921028,624097];
 
 
-for i = 1 : length(virus)-1
+for i = 7:12% : length(virus)-1
     disp(virus{i})
     if i==12
         getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), rng_values(i), 2010);
         cd(currdir)
         getJointCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), rng_values(i), 2010);
-        cd(currdir)
-        getIndividualCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), rng_values(i), 2010);
     else
         getXMLallsegmentsDummy(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), rng_values(i), 0);
+        cd(currdir)
+        getJointCoalallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), rng_values(i), 0);
     end
     cd(currdir)
 end
+% 
+% % makes the xmls for H2N2 that also infer the tip heights
+% i=length(virus);
+% getXMLallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), rng_values(i));
+% cd(currdir)
 
-% makes the xmls for H2N2 that also infer the tip heights
-i=length(virus);
-getXMLallsegments(virus{i}, workingdir{i}, 200, from(i), to(i), temperature(i), rng_values(i));
-cd(currdir)
+for year = 2016:-1:2006
+    disp(year)
+    name = ['yh3n2_' num2str(year)];
+    getXMLallsegmentsDummy(name, 'H3N2', 50, 2017, 2020, 0.02, rng_values(1), year);
+    cd(currdir)
+    getJointCoalallsegments(name, 'H3N2', 50, 2017, 2020, 0.02, rng_values(1), year);
+    cd(currdir)
+%     getIndividualCoalallsegments(name,'H3N2', 50, 2017, 2020, 0.02, rng_values(1), year);
+%     cd(currdir)
+end
+
+
+rng_values2 = [184701,430666,732676,306049,331980,146810,907100,857610,330906,193384];
+
+for year = 2015:-2:1997
+    disp(year)
+    name = ['shorth3n2_' num2str(year+3)];
+    getXMLallsegmentsDummy(name, 'H3N2', 200, year+3, year+4, 0.02, rng_values2(1), year);
+    cd(currdir)
+end
+

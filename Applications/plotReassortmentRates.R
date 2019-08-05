@@ -100,8 +100,8 @@ for(i in seq(1, length(viruses))){
 # reassortment$virus = factor(reassortment$virus, levels = virus_labels)
 
 
-tick_labels = c("pre 09 H1N1",
-                "p09 like H1N1",
+tick_labels = c("p1918 like H1N1",
+                "p2009 like H1N1",
                 "H3N2",
                 "H2N2",  
                 "Influenza B")

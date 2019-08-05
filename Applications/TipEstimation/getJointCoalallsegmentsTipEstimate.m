@@ -1,7 +1,7 @@
-function [] = getJointCoalallsegmentsTipEstimate(virus, workingdir, nrsequences, from, to,temperature, rngval, repetition, max_year_offset)
+function [] = getJointCoalallsegmentsTipEstimate(virus, workingdir, nrsequences, earliest, latest,temperature, rngval, nrrepetitions, max_year_offset, intervalLength)
 cd(['../' workingdir])
 
-rng(rngval+repetition)
+rng(rngval)
 
 % get all fasta files
 segs_files = dir('data/*.fasta');
@@ -22,6 +22,10 @@ for i = 1 : length(segs_files)
 end
 
 for repetition = 1 : nrrepetitions
+    disp(repetition)
+    % randomly sample the from and to dates
+    from = randsample([earliest:1:latest-intervalLength],1,1);
+    to = from + intervalLength;
 
     % get all unique sequences
     unique_seqs = unique(seqs);
@@ -101,7 +105,6 @@ for repetition = 1 : nrrepetitions
         g = fopen(['../TipEstimation/xmls/' virus 'norea_rep' num2str(repetition) '.xml'], 'w');
 
         est_tip_time{1} = unique_seqs{est_sample} ;
-        disp(est_tip_time{1})
 
         while ~feof(f)
             line = fgets(f);
@@ -111,6 +114,8 @@ for repetition = 1 : nrrepetitions
                     fasta = fastaread(['data/' segs_files(i).name]);
 
                     seq_length(i) = length(fasta(1).Sequence);
+                    fprintf(g, '\t\t<sequence id="%s.dummyTime" taxon="dummyTime" totalcount="4" value="%s"/>\n',...
+                         segments{i}, repmat('N',1,length(fasta(1).Sequence)));
 
                     for j = 1 : length(use_seqs)
                         ind = find(ismember(seq_seqs{i}, unique_seqs{use_seqs(j)}));
@@ -132,10 +137,13 @@ for repetition = 1 : nrrepetitions
     %              fprintf(g, '\t\t<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" logHeatedChains="true" chainLength="20000000" storeEvery="1000000" deltaTemperature="%.4f" chains="4" resampleEvery="5000">\n', temperature);            
 
             elseif contains(line, 'insert_taxa')
+                fprintf(g, '\t\t\t<taxon spec="Taxon" id="dummyTime"/>\n');
+
                 for j = 1 : length(use_seqs)
                     fprintf(g, '\t\t\t<taxon spec="Taxon" id="%s"/>\n', unique_seqs{use_seqs(j)});
                 end
             elseif contains(line, 'insert_sampling_times')
+                fprintf(g, '\t\t\t\tdummyTime=%d.0,\n', to+1);
                 for j = 1 : length(use_seqs)
                     time = strsplit(unique_seqs{use_seqs(j)}, '|');
                     tmp = strsplit(time{2}, '-');

@@ -21,7 +21,7 @@ for i = 1:length(tree_files)
     end
     fclose(f);
     
-    % read in the reassortment distances
+    % read in the reassortment distances 
     f = fopen(['target/' strrep(tree_files(i).name, '.trees', '.txt')]);
     
     clear height min_dist   

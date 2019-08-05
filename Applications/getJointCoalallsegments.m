@@ -26,14 +26,17 @@ function [] = getJointCoalallsegments(virus, workingdir, nrsequences, from, to,t
     unique_seqs = unique(seqs);
     % get the frequency of all sequences
     for i = length(unique_seqs):-1:1
-        if sum(ismember(seqs, unique_seqs{i}))<8
+        if sum(ismember(seqs, unique_seqs{i}))==8
             % check if the year is within the limits
             tmp = strsplit(unique_seqs{i}, '|');
             tmp2 = strsplit(tmp{2}, '-');
-        if (str2double(tmp2{1})<from || str2double(tmp2{1})>to) && str2double(tmp2{1})~=outgroupyear
+            if (str2double(tmp2{1})<from || str2double(tmp2{1})>to) && str2double(tmp2{1})~=outgroupyear
                 unique_seqs(i) = [];
             end              
+        else
+            unique_seqs(i) = [];
         end
+
     end
 
     % delete any sequence for which the data isn't specified to the day
@@ -47,10 +50,12 @@ function [] = getJointCoalallsegments(virus, workingdir, nrsequences, from, to,t
             year(i) = [];
         end        
     end
+    
     % check if the dimension of the year vector is correct
     if length(year)~=length(unique_seqs)
         error('error in the definition of the number of years');
     end
+    
     % get the weights of each sequence as the inverse number of samples per
     % year if the year is within from to
     weights = zeros(length(year),1);
